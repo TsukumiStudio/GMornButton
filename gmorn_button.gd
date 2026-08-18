@@ -44,6 +44,19 @@ const SETTINGS := preload("gmorn_button_settings.gd")
 static var _beat_scale: GDScript
 static var _settings: RefCounted
 
+## 焦点（`has_focus()`）でも色を変えるか。**作品ごとに切りたい。**
+##
+## 焦点の色は、手元機や鍵盤で選んでいる人には要る（どこを選んでいるか分からないと
+## 押せない）。一方で、起動した時点で最初の釦へ焦点を置く作りだと、**誰も触って
+## いないのに1つだけ色が付いている**画面になる。マウスで遊ぶ人には、押してもいない
+## 釦が選ばれているように見える。
+##
+## そこで、出すかどうかを外から切れるようにする。既定は出す（今までどおり）。
+## 切り替えるのは作品の側で、たとえば「最後に触ったのが手元機か鍵盤なら出す、
+## マウスなら出さない」と決められる。指を乗せたときの色は、この切り替えとは
+## 無関係に出る。
+static var focus_tint_enabled := true
+
 var hovered := false
 var pressed_state := false
 var previous_target_color := Color(-1.0, -1.0, -1.0, -1.0)
@@ -65,6 +78,13 @@ static func settings() -> RefCounted:
 ## 設定を読み直させる。色を実行中に変えたときに使う。
 static func reload_settings() -> void:
 	_settings = null
+
+## 焦点の色を出すかどうかを切り替える。**画面のすべての釦に一度に効く。**
+##
+## 塗り直しは各釦の毎こまの更新（`_update_tint()`）が拾うので、ここでは値を
+## 置くだけでよい。
+static func set_focus_tint_enabled(value: bool) -> void:
+	focus_tint_enabled = value
 
 func _ready() -> void:
 	var helper := _scale_helper()
@@ -117,11 +137,12 @@ func _update_tint(_immediate: bool) -> void:
 	var config := settings()
 	var target_color: Color = config.normal_color
 	if disabled:
-		target_color = config.disabled_highlighted_color if hovered or has_focus() \
+		target_color = config.disabled_highlighted_color \
+			if hovered or (has_focus() and focus_tint_enabled) \
 			else config.disabled_color
 	elif pressed_state:
 		target_color = config.pressed_color
-	elif hovered or has_focus():
+	elif hovered or (has_focus() and focus_tint_enabled):
 		target_color = config.highlighted_color
 	# 同じ色なら触らない。毎こま `modulate` へ書くと、そのたびに描き直しが走る。
 	if target_color == previous_target_color:
