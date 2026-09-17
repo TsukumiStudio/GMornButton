@@ -170,4 +170,7 @@ func _play_ui_sound(group_name: StringName) -> void:
 		return
 	var player := get_tree().get_first_node_in_group(group_name) as AudioStreamPlayer
 	if player != null:
+		var resolver: Variant = player.get_meta("morn_source_volume_resolver", Callable())
+		if resolver is Callable and (resolver as Callable).is_valid():
+			player.volume_db = (resolver as Callable).call(player.stream)
 		player.play()
