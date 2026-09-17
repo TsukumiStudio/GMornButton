@@ -30,7 +30,6 @@ func _register_settings() -> void:
 		["pressed_color", Color(0.65, 0.65, 0.65, 1.0), TYPE_COLOR, PROPERTY_HINT_NONE, ""],
 		["disabled_color", Color(0.65, 0.65, 0.65, 1.0), TYPE_COLOR, PROPERTY_HINT_NONE, ""],
 		["disabled_highlighted_color", Color(0.5, 0.5, 0.5, 1.0), TYPE_COLOR, PROPERTY_HINT_NONE, ""],
-		["cursor_audio_group", "morn_ui_cursor_audio", TYPE_STRING, PROPERTY_HINT_NONE, ""],
 		["submit_audio_group", "morn_ui_submit_audio", TYPE_STRING, PROPERTY_HINT_NONE, ""],
 	]:
 		var key: String = "gmorn_button/" + String(row[0])

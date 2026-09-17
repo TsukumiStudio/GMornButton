@@ -31,8 +31,6 @@ const SETTINGS := preload("gmorn_button_settings.gd")
 
 ## 背景の描き方。`null` なら何も描かない（見えない釦になる）。
 @export var background_style: StyleBox
-## 指を乗せたときに音を鳴らすか。
-@export var play_cursor_sound := true
 ## 押したときに音を鳴らすか。
 @export var play_submit_sound := true
 ## 拍で拍動するか。
@@ -151,26 +149,17 @@ func _update_tint(_immediate: bool) -> void:
 	modulate = target_color
 
 func _set_hovered(value: bool) -> void:
-	# 乗った瞬間だけ鳴らす。乗っている間ずっと鳴らすと耳障りになる。
-	if value and not hovered and not disabled and play_cursor_sound:
-		_play_ui_sound(settings().cursor_audio_group)
 	hovered = value
 	_update_tint(false)
 
 func _set_pressed(value: bool) -> void:
 	if value and not pressed_state and not disabled and play_submit_sound:
-		_play_ui_sound(settings().submit_audio_group)
+		if not Engine.is_editor_hint() and DisplayServer.get_name() != "headless":
+			var player := get_tree().get_first_node_in_group(settings().submit_audio_group) as AudioStreamPlayer
+			if player != null:
+				var resolver: Variant = player.get_meta("morn_source_volume_resolver", Callable())
+				if resolver is Callable and (resolver as Callable).is_valid():
+					player.volume_db = (resolver as Callable).call(player.stream)
+				player.play()
 	pressed_state = value
 	_update_tint(false)
-
-## 鳴らす相手は組から探す。指し示す形にすると、釦を置くたびに繋ぎ直しが要る。
-## 相手が居ない場面（音を持たない画面）でもそのまま置ける。
-func _play_ui_sound(group_name: StringName) -> void:
-	if Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
-		return
-	var player := get_tree().get_first_node_in_group(group_name) as AudioStreamPlayer
-	if player != null:
-		var resolver: Variant = player.get_meta("morn_source_volume_resolver", Callable())
-		if resolver is Callable and (resolver as Callable).is_valid():
-			player.volume_db = (resolver as Callable).call(player.stream)
-		player.play()

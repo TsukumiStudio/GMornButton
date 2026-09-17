@@ -59,18 +59,7 @@ func _run() -> void:
 	button._set_hovered(false)
 	button._set_pressed(false)
 
-	# 音の相手は組から探す。相手が居なくても落ちない。
-	assert(get_first_node_in_group(config.cursor_audio_group) == null,
-		"検証用の木に音の相手が居る")
-	button._play_ui_sound(config.cursor_audio_group)
-
-	# 相手が居ても、画面が無ければ鳴らさない。
-	var player := AudioStreamPlayer.new()
-	player.add_to_group(config.cursor_audio_group)
-	root.add_child(player)
-	await process_frame
-	button._play_ui_sound(config.cursor_audio_group)
-	assert(not player.playing, "画面が無いのに鳴らした")
+	assert(not button.has_method("_play_ui_sound"), "削除したUI音の再生メソッドが残っている")
 
 	# 拍動を切ってあれば組に入らない。画面のすべてが揺れると、どれが押せるのか
 	# 分からなくなる。

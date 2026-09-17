@@ -2,7 +2,7 @@
 
 ## 概要
 
-指乗せ・押下・押せないの反応と操作音を、釦の土台にまとめるGodotアドオン。
+指乗せ・押下・押せないの反応と、押下時の決定音を釦の土台にまとめるGodotアドオン。
 
 釦に要るものはどの作品でもだいたい同じである。指を乗せたら色が変わる、押したら音が鳴る、押せないときは沈む。これを釦ごとに書くと必ずどこか一つだけ抜ける。抜けた場所は「なんとなく反応が薄い」としか気付けない。
 
@@ -70,17 +70,16 @@ disabled_highlighted_color=Color(0.8, 0.27, 0.74, 1)
 | 押下 | `gmorn_button/pressed_color` | `Color(0.65, 0.65, 0.65)` |
 | 押せない | `gmorn_button/disabled_color` | `Color(0.65, 0.65, 0.65)` |
 | 押せない＋指乗せ | `gmorn_button/disabled_highlighted_color` | `Color(0.5, 0.5, 0.5)` |
-| 指乗せ音の組 | `gmorn_button/cursor_audio_group` | `morn_ui_cursor_audio` |
 | 決定音の組 | `gmorn_button/submit_audio_group` | `morn_ui_submit_audio` |
 
-### 4. 音を鳴らす
+### 4. 決定音を鳴らす
 
 鳴らす `AudioStreamPlayer` を組に入れる。釦側の設定は要らない。
 
 ```
-[node name="CursorSe" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("cursor_se")
-groups = ["morn_ui_cursor_audio"]
+[node name="SubmitSe" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("submit_se")
+groups = ["morn_ui_submit_audio"]
 ```
 
 ### 5. 釦ごとに変える
@@ -88,7 +87,6 @@ groups = ["morn_ui_cursor_audio"]
 | 項目 | 何を決めるか | 既定 |
 | --- | --- | --- |
 | `background_style` | 背景の描き方。`null` なら見えない釦 | `null` |
-| `play_cursor_sound` | 指乗せで鳴らすか | `true` |
 | `play_submit_sound` | 押下で鳴らすか | `true` |
 | `beat_scale_enabled` | 拍で拍動するか | `false` |
 

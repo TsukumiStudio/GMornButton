@@ -24,8 +24,6 @@ var disabled_color := Color(0.65, 0.65, 0.65, 1.0)
 ## 押せないことを伝えるために、乗せたときも反応は返す。無反応だと、
 ## 押せないのか壊れているのか分からない。
 var disabled_highlighted_color := Color(0.5, 0.5, 0.5, 1.0)
-## 指を乗せたときに鳴らす `AudioStreamPlayer` が入っている組の名前。
-var cursor_audio_group := &"morn_ui_cursor_audio"
 ## 押したときに鳴らす `AudioStreamPlayer` が入っている組の名前。
 var submit_audio_group := &"morn_ui_submit_audio"
 
@@ -38,7 +36,6 @@ func load_from_environment() -> void:
 	pressed_color = _color("pressed_color", pressed_color)
 	disabled_color = _color("disabled_color", disabled_color)
 	disabled_highlighted_color = _color("disabled_highlighted_color", disabled_highlighted_color)
-	cursor_audio_group = StringName(_setting("cursor_audio_group", cursor_audio_group))
 	submit_audio_group = StringName(_setting("submit_audio_group", submit_audio_group))
 
 ## 色は `Color` でも `"#ff00ff"` のような文字でも受ける。`project.godot` へ
