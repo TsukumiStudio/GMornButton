@@ -38,6 +38,9 @@ const SETTINGS := preload("gmorn_button_settings.gd")
 ## 既定は無効。画面のすべてが揺れると、どれが押せるのか分からなくなる。
 ## 揺らしたい釦にだけ付ける。
 @export var beat_scale_enabled := false
+## 指乗せ・焦点時の色変化を釦ごとに無効にするか。
+## 共通のハイライト色は残したまま、背景の上に置く透明釦などだけ無反応にできる。
+@export var highlight_tint_enabled := true
 
 static var _beat_scale: GDScript
 static var _settings: RefCounted
@@ -136,11 +139,11 @@ func _update_tint(_immediate: bool) -> void:
 	var target_color: Color = config.normal_color
 	if disabled:
 		target_color = config.disabled_highlighted_color \
-			if hovered or (has_focus() and focus_tint_enabled) \
+			if highlight_tint_enabled and (hovered or (has_focus() and focus_tint_enabled)) \
 			else config.disabled_color
 	elif pressed_state:
 		target_color = config.pressed_color
-	elif hovered or (has_focus() and focus_tint_enabled):
+	elif highlight_tint_enabled and (hovered or (has_focus() and focus_tint_enabled)):
 		target_color = config.highlighted_color
 	# 同じ色なら触らない。毎こま `modulate` へ書くと、そのたびに描き直しが走る。
 	if target_color == previous_target_color:
