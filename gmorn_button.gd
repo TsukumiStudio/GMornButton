@@ -61,7 +61,7 @@ static var focus_tint_enabled := true
 var hovered := false
 var pressed_state := false
 var previous_target_color := Color(-1.0, -1.0, -1.0, -1.0)
-var beat_scale := Vector2.ONE
+var beat_scale: Vector2 = Vector2.ONE
 
 static func _scale_helper() -> GDScript:
 	if _beat_scale == null and ResourceLoader.exists(BEAT_SCALE_PATH):
@@ -119,7 +119,13 @@ func _process(delta: float) -> void:
 	var helper := _scale_helper()
 	if helper == null:
 		return
-	beat_scale = helper.lerp_back(beat_scale, delta)
+	var current_scale: Vector2
+	if beat_scale is Vector2:
+		current_scale = beat_scale
+	else:
+		current_scale = Vector2.ONE
+		beat_scale = current_scale
+	beat_scale = helper.lerp_back(current_scale, delta)
 	scale = beat_scale
 
 ## 1拍ぶん拍動する。拍を配る側から呼ばれる。
