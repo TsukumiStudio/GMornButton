@@ -1,9 +1,6 @@
 extends SceneTree
 
-## 4つの状態で色が変わること、音の相手を組から探すことを確かめる。
-##
-## 画面のない実行なので音は鳴らない。鳴らさないこと自体も約束の一つ
-## （検証のたびに鳴らない）なので、そこも見る。
+## 4つの状態で色が変わること、設定を `ProjectSettings` から読むことを保証する。
 
 const BUTTON_PATH := "res://addons/gmorn_button/gmorn_button.gd"
 const SETTINGS_PATH := "res://addons/gmorn_button/gmorn_button_settings.gd"
@@ -15,14 +12,14 @@ func _run() -> void:
 	var script: GDScript = load(BUTTON_PATH)
 	var settings_script: GDScript = load(SETTINGS_PATH)
 
-	# 作品ごとの色は `ProjectSettings` で決める。釦ごとに持たせない。
+	# 色は `ProjectSettings` から読む。
 	ProjectSettings.set_setting("gmorn_button/highlighted_color", Color(1.0, 0.0, 1.0, 1.0))
 	ProjectSettings.set_setting("gmorn_button/pressed_color", "#00ff00")
 	script.reload_settings()
 	var config: RefCounted = script.settings()
 	assert(config.highlighted_color == Color(1.0, 0.0, 1.0, 1.0),
 		"指乗せの色が %s" % config.highlighted_color)
-	# 文字で書いた色も読める。`project.godot` へ手で書くときに使う。
+	# 文字で書いた色も読める。
 	assert(config.pressed_color.is_equal_approx(Color(0.0, 1.0, 0.0, 1.0)),
 		"押下の色が %s" % config.pressed_color)
 
@@ -45,8 +42,7 @@ func _run() -> void:
 	button._set_hovered(false)
 	assert(button.modulate == config.normal_color, "戻したのに %s" % button.modulate)
 
-	# 押せないときは沈む。乗せても反応は返す。無反応だと、押せないのか
-	# 壊れているのか分からない。
+	# 押せないときは沈み、乗せても反応は返す。
 	button.disabled = true
 	button._update_tint(false)
 	assert(button.modulate == config.disabled_color, "押せないときが %s" % button.modulate)
@@ -61,8 +57,7 @@ func _run() -> void:
 
 	assert(not button.has_method("_play_ui_sound"), "削除したUI音の再生メソッドが残っている")
 
-	# 拍動を切ってあれば組に入らない。画面のすべてが揺れると、どれが押せるのか
-	# 分からなくなる。
+	# 拍動は既定で無効。
 	assert(not button.beat_scale_enabled, "既定で拍動が有効になっている")
 
 	print("色=通常%s 指乗せ%s 押下%s" % [

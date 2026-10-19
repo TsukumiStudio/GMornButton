@@ -1,10 +1,7 @@
 @tool
 extends EditorPlugin
 
-## GMornButton を組み込むための入口。
-##
-## 釦は場面ごとに置くものなので、自動読み込みには登録しない。代わりに
-## 「ノードを追加」から選べるようにする。台本を手で貼り付ける手間を省く。
+## 自動読み込みには登録しない。釦は場面ごとに置くものなので「ノードを追加」に出す。
 
 const TYPE_NAME := "GMornButton"
 
@@ -18,11 +15,8 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	remove_custom_type(TYPE_NAME)
 
-## 設定の既定値と型をプロジェクト設定へ登録する。
-##
-## 登録が無いと「プロジェクト設定」画面で全項目に戻す印（回転の矢印）が付き、
-## どれを変えたのか分からない。パスは選択の窓から、列挙は一覧から選べるようにする。
-## 値は読む側（既定値）と同じにすること。読む側はここに依らず、無くても動く。
+## 既定値を登録しないと「プロジェクト設定」で全項目に戻す印が付き、どれを変えたか
+## 分からない。値は読む側の既定値と同じにする。読む側はこの登録が無くても動く。
 func _register_settings() -> void:
 	for row in [
 		["normal_color", Color.WHITE, TYPE_COLOR, PROPERTY_HINT_NONE, ""],
