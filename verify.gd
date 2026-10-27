@@ -115,5 +115,6 @@ func _run() -> void:
 
 	print("色=通常%s 指乗せ%s 押下%s" % [
 		config.normal_color, config.highlighted_color, config.pressed_color])
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(DEFAULT_COLORS_PATH))
 	print("GMORN BUTTON VERIFY: PASS")
 	quit(0)
