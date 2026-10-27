@@ -2,21 +2,24 @@
 extends BaseButton
 
 ## 釦の土台。4つの状態（通常・指乗せ/焦点・押下・押せない）を `modulate` で表し、
-## 色は `ProjectSettings` から、決定音は組（group）から取る。
+## 色は色の組（`colors`、無ければ作品の既定）から、決定音は組（group）から取る。
 
 ## `preload` で指さない。gmorn_beat を取っていない状態で解析に失敗し、この台本ごと
 ## 読めなくなる（釦が全部壊れる）。実行時に読み、無ければ拍動しないだけにする。
 const BEAT_SCALE_PATH := "res://addons/gmorn_beat/gmorn_beat_scale.gd"
 
 const SETTINGS := preload("gmorn_button_settings.gd")
+const COLORS := preload("gmorn_button_colors.gd")
 
 ## `null` なら何も描かない（見えない釦）。
 @export var background_style: StyleBox
 @export var play_submit_sound := true
 ## 既定は無効。画面のすべてが揺れると、どれが押せるのか分からなくなる。
 @export var beat_scale_enabled := false
-## 背景の上に置く透明釦などを、共通のハイライト色は残したまま無反応にする用途。
-@export var highlight_tint_enabled := true
+## `gmorn_button_colors.gd` の `.tres`。`null` なら作品の既定（`gmorn_button/default_colors`）。
+## 型を絞らないのは、`class_name` を持たない台本ではインスペクタの型の絞り込みが効かないため。
+## 色の組でないものを入れたときは既定の色になる。
+@export var colors: Resource
 
 static var _beat_scale: GDScript
 static var _settings: RefCounted
@@ -46,6 +49,15 @@ static func settings() -> RefCounted:
 ## 色を実行中に変えたときに呼ぶ。
 static func reload_settings() -> void:
 	_settings = null
+
+## 釦でない部品（自前のタブなど）も、同じ組から同じ規則で色を出すための口。
+## 毎こま呼んでよい。組は共有の参照で、既定は `settings()` が1回だけ読む。
+static func tint_color(preset: Resource, highlighted: bool, pressed: bool, is_disabled: bool) -> Color:
+	if preset is COLORS:
+		return preset.color_for(highlighted, pressed, is_disabled)
+	var config := settings()
+	var fallback: Object = config.default_colors if config.default_colors != null else config
+	return fallback.color_for(highlighted, pressed, is_disabled)
 
 ## 画面のすべての釦に一度に効く。塗り直しは各釦の毎こまの `_update_tint()` が拾う。
 static func set_focus_tint_enabled(value: bool) -> void:
@@ -103,16 +115,8 @@ func _update_pivot() -> void:
 	pivot_offset = size / 2.0
 
 func _update_tint(_immediate: bool) -> void:
-	var config := settings()
-	var target_color: Color = config.normal_color
-	if disabled:
-		target_color = config.disabled_highlighted_color \
-			if highlight_tint_enabled and (hovered or (has_focus() and focus_tint_enabled)) \
-			else config.disabled_color
-	elif pressed_state:
-		target_color = config.pressed_color
-	elif highlight_tint_enabled and (hovered or (has_focus() and focus_tint_enabled)):
-		target_color = config.highlighted_color
+	var highlighted := hovered or (has_focus() and focus_tint_enabled)
+	var target_color := tint_color(colors, highlighted, pressed_state, disabled)
 	# 同じ色なら書かない。毎こま `modulate` へ書くと、そのたびに描き直しが走る。
 	if target_color == previous_target_color:
 		return
