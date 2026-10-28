@@ -76,7 +76,6 @@ func _ready() -> void:
 		_update_pivot()
 		resized.connect(_update_pivot)
 	mouse_entered.connect(_set_hovered.bind(true))
-	mouse_entered.connect(_play_focus_sound)
 	mouse_exited.connect(_set_hovered.bind(false))
 	button_down.connect(_set_pressed.bind(true))
 	button_up.connect(_set_pressed.bind(false))
@@ -147,7 +146,7 @@ func _set_pressed(value: bool) -> void:
 	_update_tint(false)
 
 func _play_focus_sound() -> void:
-	if (not _allow_focus_sound and not hovered) or Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
+	if not _allow_focus_sound or Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
 		return
 	var player := get_tree().get_first_node_in_group("morn_ui_focus_audio") as AudioStreamPlayer
 	if player == null:
