@@ -74,6 +74,7 @@ func _ready() -> void:
 	button_down.connect(_set_pressed.bind(true))
 	button_up.connect(_set_pressed.bind(false))
 	focus_entered.connect(_update_tint.bind(false))
+	focus_entered.connect(_play_focus_sound)
 	focus_exited.connect(_update_tint.bind(false))
 	_update_tint(true)
 	queue_redraw()
@@ -138,3 +139,14 @@ func _set_pressed(value: bool) -> void:
 				player.play()
 	pressed_state = value
 	_update_tint(false)
+
+func _play_focus_sound() -> void:
+	if Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
+		return
+	var player := get_tree().get_first_node_in_group("morn_ui_focus_audio") as AudioStreamPlayer
+	if player == null:
+		return
+	var resolver: Variant = player.get_meta("morn_source_volume_resolver", Callable())
+	if resolver is Callable and (resolver as Callable).is_valid():
+		player.volume_db = (resolver as Callable).call(player.stream)
+	player.play()
