@@ -1,3 +1,4 @@
+@tool
 extends Resource
 
 ## 釦の色の組。`.tres` に保存して、釦の `colors` へ割り当てる。
