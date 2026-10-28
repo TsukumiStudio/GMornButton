@@ -28,7 +28,7 @@ static var _settings: RefCounted
 ## 起動時に焦点を置く作りだとマウス操作では誰も触っていない釦に色が付く）。
 ## 指乗せの色はこの切り替えと無関係に出る。
 static var focus_tint_enabled := true
-static var _suppress_focus_sound := false
+static var _allow_focus_sound := false
 
 var hovered := false
 var pressed_state := false
@@ -64,10 +64,10 @@ static func tint_color(preset: Resource, highlighted: bool, pressed: bool, is_di
 static func set_focus_tint_enabled(value: bool) -> void:
 	focus_tint_enabled = value
 
-static func grab_focus_without_sound(control: Control) -> void:
-	_suppress_focus_sound = true
+static func grab_focus_with_sound(control: Control) -> void:
+	_allow_focus_sound = true
 	control.grab_focus()
-	_suppress_focus_sound = false
+	_allow_focus_sound = false
 
 func _ready() -> void:
 	var helper := _scale_helper()
@@ -76,11 +76,11 @@ func _ready() -> void:
 		_update_pivot()
 		resized.connect(_update_pivot)
 	mouse_entered.connect(_set_hovered.bind(true))
+	mouse_entered.connect(_play_focus_sound)
 	mouse_exited.connect(_set_hovered.bind(false))
 	button_down.connect(_set_pressed.bind(true))
 	button_up.connect(_set_pressed.bind(false))
 	focus_entered.connect(_update_tint.bind(false))
-	focus_entered.connect(_play_focus_sound)
 	focus_exited.connect(_update_tint.bind(false))
 	_update_tint(true)
 	queue_redraw()
@@ -147,7 +147,7 @@ func _set_pressed(value: bool) -> void:
 	_update_tint(false)
 
 func _play_focus_sound() -> void:
-	if _suppress_focus_sound or Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
+	if (not _allow_focus_sound and not hovered) or Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
 		return
 	var player := get_tree().get_first_node_in_group("morn_ui_focus_audio") as AudioStreamPlayer
 	if player == null:
