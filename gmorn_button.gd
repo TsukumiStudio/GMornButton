@@ -28,6 +28,7 @@ static var _settings: RefCounted
 ## 起動時に焦点を置く作りだとマウス操作では誰も触っていない釦に色が付く）。
 ## 指乗せの色はこの切り替えと無関係に出る。
 static var focus_tint_enabled := true
+static var _suppress_focus_sound := false
 
 var hovered := false
 var pressed_state := false
@@ -62,6 +63,11 @@ static func tint_color(preset: Resource, highlighted: bool, pressed: bool, is_di
 ## 画面のすべての釦に一度に効く。塗り直しは各釦の毎こまの `_update_tint()` が拾う。
 static func set_focus_tint_enabled(value: bool) -> void:
 	focus_tint_enabled = value
+
+static func grab_focus_without_sound(control: Control) -> void:
+	_suppress_focus_sound = true
+	control.grab_focus()
+	_suppress_focus_sound = false
 
 func _ready() -> void:
 	var helper := _scale_helper()
@@ -141,7 +147,7 @@ func _set_pressed(value: bool) -> void:
 	_update_tint(false)
 
 func _play_focus_sound() -> void:
-	if Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
+	if _suppress_focus_sound or Engine.is_editor_hint() or DisplayServer.get_name() == "headless":
 		return
 	var player := get_tree().get_first_node_in_group("morn_ui_focus_audio") as AudioStreamPlayer
 	if player == null:
